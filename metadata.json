@@ -1,0 +1,5 @@
+{
+  "name": "appCERTISP",
+  "description": "Sistema de gestão profissional para autoridades de certificação digital. Gerenciamento de clientes, produtos, agenda e checklists.",
+  "requestFramePermissions": []
+}
