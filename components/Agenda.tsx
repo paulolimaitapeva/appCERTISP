@@ -19,6 +19,7 @@ const Agenda: React.FC = () => {
   const [selectedClientId, setSelectedClientId] = useState('');
   const [selectedProductId, setSelectedProductId] = useState('');
   const [selectedAcId, setSelectedAcId] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<AppointmentStatus>(AppointmentStatus.PENDING);
   
   // Scheduling State
   const [schedulingMode, setSchedulingMode] = useState<'NOW' | 'LATER'>('NOW');
@@ -157,6 +158,7 @@ const Agenda: React.FC = () => {
     if (order) {
       setEditingId(order.id);
       setSelectedClientId(order.clientId);
+      setSelectedStatus(order.status);
       
       const c = clients.find(cl => cl.id === order.clientId);
       if (c) {
@@ -195,7 +197,7 @@ const Agenda: React.FC = () => {
     }
 
     let dateTime: string | undefined = undefined;
-    let newStatus = AppointmentStatus.PENDING;
+    let finalStatus = selectedStatus;
 
     if (schedulingMode === 'NOW') {
         if (!date || !time) {
@@ -203,9 +205,13 @@ const Agenda: React.FC = () => {
             return;
         }
         dateTime = new Date(`${date}T${time}:00`).toISOString();
-        newStatus = AppointmentStatus.SCHEDULED;
+        // Auto-promote if pending, otherwise respect selection
+        if (finalStatus === AppointmentStatus.PENDING) {
+            finalStatus = AppointmentStatus.SCHEDULED;
+        }
     } else {
-        newStatus = AppointmentStatus.PENDING;
+        // If "Pending" mode is selected, ensure status is Pending
+        finalStatus = AppointmentStatus.PENDING;
     }
     
     const payload = {
@@ -214,7 +220,7 @@ const Agenda: React.FC = () => {
       acId: selectedAcId,
       date: dateTime,
       notes: notes,
-      status: newStatus
+      status: finalStatus
     };
 
     if (editingId) {
@@ -233,6 +239,7 @@ const Agenda: React.FC = () => {
     setSelectedClientId('');
     setSelectedProductId('');
     setSelectedAcId('');
+    setSelectedStatus(AppointmentStatus.PENDING);
     setDate('');
     setTime('');
     setNotes('');
@@ -251,10 +258,9 @@ const Agenda: React.FC = () => {
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm('Tem certeza que deseja excluir este agendamento/pedido?')) {
-        db.deleteAppointment(id);
-        refreshData();
-    }
+    // Removed window.confirm to ensure the action works if dialogs are blocked
+    db.deleteAppointment(id);
+    refreshData();
   };
 
   return (
@@ -473,7 +479,7 @@ const Agenda: React.FC = () => {
                         </select>
                     </div>
 
-                    {/* New Scheduling Interface */}
+                    {/* Scheduling Interface */}
                     <div className="bg-gray-50 p-1 rounded-lg border border-gray-200">
                         <div className="grid grid-cols-2 gap-1 p-1 mb-3 bg-gray-200/50 rounded-lg">
                             <button
@@ -522,6 +528,22 @@ const Agenda: React.FC = () => {
                         )}
                     </div>
                     
+                    {/* Status Dropdown (Visible only if editing or to allow manual override) */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Status Atual</label>
+                        <select
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none bg-white text-gray-900"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value as AppointmentStatus)}
+                            disabled={schedulingMode === 'LATER'} // If pending, force pending
+                        >
+                            <option value={AppointmentStatus.PENDING}>Pendente</option>
+                            <option value={AppointmentStatus.SCHEDULED}>Agendado</option>
+                            <option value={AppointmentStatus.COMPLETED}>Concluído</option>
+                            <option value={AppointmentStatus.CANCELLED}>Cancelado</option>
+                        </select>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-bold text-gray-700 mb-1">Notas / Observações</label>
                         <textarea 

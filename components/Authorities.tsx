@@ -44,10 +44,9 @@ const Authorities: React.FC = () => {
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm('Tem certeza que deseja remover esta Autoridade Certificadora?')) {
-      db.deleteAC(id);
-      setAcs(db.getACs());
-    }
+    // Removed window.confirm to ensure the action works if dialogs are blocked
+    db.deleteAC(id);
+    setAcs(db.getACs());
   };
 
   const filteredAcs = acs.filter(a => 

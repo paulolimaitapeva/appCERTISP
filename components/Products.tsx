@@ -43,10 +43,9 @@ const Products: React.FC = () => {
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm('Remover este produto?')) {
-      db.deleteProduct(id);
-      setProducts(db.getProducts());
-    }
+    // Removed window.confirm to ensure the action works if dialogs are blocked
+    db.deleteProduct(id);
+    setProducts(db.getProducts());
   };
 
   const formatValidity = (months: number) => {
