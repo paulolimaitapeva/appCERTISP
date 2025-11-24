@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { Product } from '../types';
@@ -39,7 +40,8 @@ const Products: React.FC = () => {
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     if (window.confirm('Remover este produto?')) {
       db.deleteProduct(id);
       setProducts(db.getProducts());
@@ -119,7 +121,7 @@ const Products: React.FC = () => {
                                         <Pencil className="w-4 h-4" />
                                     </button>
                                     <button 
-                                        onClick={() => handleDelete(product.id)}
+                                        onClick={(e) => handleDelete(e, product.id)}
                                         className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
                                         title="Excluir"
                                     >

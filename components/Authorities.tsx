@@ -41,7 +41,8 @@ const Authorities: React.FC = () => {
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     if (window.confirm('Tem certeza que deseja remover esta Autoridade Certificadora?')) {
       db.deleteAC(id);
       setAcs(db.getACs());
@@ -117,7 +118,7 @@ const Authorities: React.FC = () => {
                         <Pencil className="w-4 h-4" />
                         </button>
                         <button 
-                        onClick={() => handleDelete(ac.id)}
+                        onClick={(e) => handleDelete(e, ac.id)}
                         className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-colors"
                         >
                         <Trash2 className="w-4 h-4" />

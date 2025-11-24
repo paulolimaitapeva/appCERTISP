@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { generateDocumentChecklist } from '../services/geminiService';
 import { Client, Product, AppointmentStatus, OrderDisplay, CertificateAuthority } from '../types';
-import { Calendar, Clock, CheckCircle2, XCircle, Sparkles, FileText, Building, Pencil, Search, UserPlus, AlertCircle, Loader2, Globe, CalendarOff, CalendarCheck } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, XCircle, Sparkles, FileText, Building, Pencil, Search, UserPlus, AlertCircle, Loader2, Globe, CalendarOff, CalendarCheck, Trash2 } from 'lucide-react';
 import { fetchCnpjData } from '../services/brasilApi';
 
 const Agenda: React.FC = () => {
@@ -204,17 +205,12 @@ const Agenda: React.FC = () => {
         dateTime = new Date(`${date}T${time}:00`).toISOString();
         status = AppointmentStatus.SCHEDULED;
     } else {
-        // If editing an existing scheduled order to pending
+        // If "Pending" is selected, status is Pending.
         status = AppointmentStatus.PENDING;
     }
 
-    // Keep existing status if simply editing notes of a completed/cancelled order
-    if (editingId) {
-        const existing = orders.find(o => o.id === editingId);
-        if (existing && (existing.status === AppointmentStatus.COMPLETED || existing.status === AppointmentStatus.CANCELLED)) {
-             status = existing.status;
-        }
-    }
+    // Nota: Removida a trava que impedia a mudança de status de COMPLETED/CANCELLED.
+    // Agora, se o usuário editar, o status será recalculado com base na data (Agendado ou Pendente).
     
     const payload = {
       clientId: selectedClientId,
@@ -254,6 +250,14 @@ const Agenda: React.FC = () => {
   const handleStatusChange = (id: string, newStatus: AppointmentStatus) => {
     db.updateAppointmentStatus(id, newStatus);
     refreshData();
+  };
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (window.confirm('Tem certeza que deseja excluir este agendamento/pedido?')) {
+        db.deleteAppointment(id);
+        refreshData();
+    }
   };
 
   return (
@@ -319,16 +323,26 @@ const Agenda: React.FC = () => {
                     {order.status === AppointmentStatus.CANCELLED && 'CANCELADO'}
                 </span>
 
-                <button 
-                    onClick={() => handleOpenModal(order)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors tooltip"
-                    title="Editar Pedido"
-                >
-                    <Pencil className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-1">
+                    <button 
+                        onClick={() => handleOpenModal(order)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors tooltip"
+                        title="Editar Pedido"
+                    >
+                        <Pencil className="w-5 h-5" />
+                    </button>
+
+                    <button 
+                        onClick={(e) => handleDelete(e, order.id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors tooltip"
+                        title="Excluir"
+                    >
+                        <Trash2 className="w-5 h-5" />
+                    </button>
+                </div>
 
                 {(order.status === AppointmentStatus.SCHEDULED || order.status === AppointmentStatus.PENDING) && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-1 pl-2 border-l border-gray-200">
                     <button 
                         onClick={() => handleStatusChange(order.id, AppointmentStatus.COMPLETED)}
                         className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors tooltip"

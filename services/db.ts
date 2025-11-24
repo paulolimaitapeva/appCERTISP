@@ -116,6 +116,9 @@ class MockDatabase {
   updateAppointmentStatus(id: string, status: AppointmentStatus) {
     this.appointments = this.appointments.map(a => a.id === id ? { ...a, status } : a);
   }
+  deleteAppointment(id: string) {
+    this.appointments = this.appointments.filter(a => a.id !== id);
+  }
 
   // Joined Data for Views
   getOrdersDisplay(): any[] {

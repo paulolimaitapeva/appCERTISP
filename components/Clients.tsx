@@ -69,7 +69,8 @@ const Clients: React.FC = () => {
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     if (window.confirm('Tem certeza que deseja remover este cliente?')) {
       db.deleteClient(id);
       setClients(db.getClients());
@@ -147,7 +148,7 @@ const Clients: React.FC = () => {
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => handleDelete(client.id)}
+                        onClick={(e) => handleDelete(e, client.id)}
                         className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-colors"
                         title="Excluir"
                       >
