@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { Client } from '../types';
 import { fetchCnpjData } from '../services/brasilApi';
-import { Plus, Search, Trash2, User as UserIcon, Building2, Pencil, Globe, Loader2 } from 'lucide-react';
+import { Plus, Search, Trash2, User as UserIcon, Building2, Pencil, Globe, Loader2, AlertTriangle } from 'lucide-react';
 
 const Clients: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -14,6 +14,9 @@ const Clients: React.FC = () => {
   
   const [loadingCnpj, setLoadingCnpj] = useState(false);
   const [apiError, setApiError] = useState('');
+
+  // Delete Confirmation State
+  const [clientToDelete, setClientToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     setClients(db.getClients());
@@ -69,12 +72,17 @@ const Clients: React.FC = () => {
     }
   };
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (window.confirm('Confirma a exclusão deste cliente?')) {
-        db.deleteClient(id);
-        setClients(db.getClients());
-    }
+    setClientToDelete(id);
+  };
+
+  const confirmDelete = () => {
+      if (clientToDelete) {
+          db.deleteClient(clientToDelete);
+          setClients(db.getClients());
+          setClientToDelete(null);
+      }
   };
 
   const filteredClients = clients.filter(c => 
@@ -150,7 +158,7 @@ const Clients: React.FC = () => {
                       </button>
                       <button 
                         type="button"
-                        onClick={(e) => handleDelete(e, client.id)}
+                        onClick={(e) => handleDeleteClick(e, client.id)}
                         className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-colors"
                         title="Excluir"
                       >
@@ -172,7 +180,7 @@ const Clients: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Edit/Create Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl">
@@ -282,6 +290,40 @@ const Clients: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {clientToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl p-6 shadow-xl max-w-sm w-full animate-fade-in border border-gray-100">
+            <div className="flex items-center gap-3 mb-4 text-red-600">
+                <div className="bg-red-100 p-2 rounded-full">
+                    <AlertTriangle className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Excluir Cliente?</h3>
+            </div>
+            
+            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+                Tem certeza que deseja excluir <strong>{clients.find(c => c.id === clientToDelete)?.name}</strong>? 
+                <br/>Esta ação é irreversível.
+            </p>
+            
+            <div className="flex justify-end gap-3">
+                <button 
+                    onClick={() => setClientToDelete(null)}
+                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+                >
+                    Cancelar
+                </button>
+                <button 
+                    onClick={confirmDelete}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium shadow-sm transition-colors"
+                >
+                    Confirmar Exclusão
+                </button>
+            </div>
           </div>
         </div>
       )}

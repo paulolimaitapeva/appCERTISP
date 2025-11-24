@@ -2,13 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { Product } from '../types';
-import { ShoppingBag, Plus, Trash2, Tag, Pencil, Clock } from 'lucide-react';
+import { ShoppingBag, Plus, Trash2, Tag, Pencil, Clock, AlertTriangle } from 'lucide-react';
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<Partial<Product>>({ type: 'A1', validityMonths: 12 });
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Delete Confirmation State
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     setProducts(db.getProducts());
@@ -40,12 +43,17 @@ const Products: React.FC = () => {
     }
   };
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (window.confirm('Confirma a exclusão deste produto?')) {
-        db.deleteProduct(id);
-        setProducts(db.getProducts());
-    }
+    setProductToDelete(id);
+  };
+
+  const confirmDelete = () => {
+      if (productToDelete) {
+          db.deleteProduct(productToDelete);
+          setProducts(db.getProducts());
+          setProductToDelete(null);
+      }
   };
 
   const formatValidity = (months: number) => {
@@ -123,7 +131,7 @@ const Products: React.FC = () => {
                                     </button>
                                     <button 
                                         type="button"
-                                        onClick={(e) => handleDelete(e, product.id)}
+                                        onClick={(e) => handleDeleteClick(e, product.id)}
                                         className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
                                         title="Excluir"
                                     >
@@ -227,6 +235,40 @@ const Products: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl p-6 shadow-xl max-w-sm w-full animate-fade-in border border-gray-100">
+            <div className="flex items-center gap-3 mb-4 text-red-600">
+                <div className="bg-red-100 p-2 rounded-full">
+                    <AlertTriangle className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Excluir Produto?</h3>
+            </div>
+            
+            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+                Tem certeza que deseja excluir <strong>{products.find(p => p.id === productToDelete)?.name}</strong>? 
+                <br/>Esta ação é irreversível.
+            </p>
+            
+            <div className="flex justify-end gap-3">
+                <button 
+                    onClick={() => setProductToDelete(null)}
+                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+                >
+                    Cancelar
+                </button>
+                <button 
+                    onClick={confirmDelete}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium shadow-sm transition-colors"
+                >
+                    Confirmar Exclusão
+                </button>
+            </div>
           </div>
         </div>
       )}

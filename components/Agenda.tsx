@@ -327,7 +327,7 @@ const Agenda: React.FC = () => {
                     >
                         <Pencil className="w-5 h-5" />
                     </button>
-                    {/* Botão excluir removido conforme solicitação */}
+                    {/* Delete button removed */}
                 </div>
 
                 {(order.status === AppointmentStatus.SCHEDULED || order.status === AppointmentStatus.PENDING) && (

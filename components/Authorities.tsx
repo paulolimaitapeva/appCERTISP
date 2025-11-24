@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { CertificateAuthority } from '../types';
-import { Plus, Search, Trash2, Building, Link as LinkIcon, Pencil } from 'lucide-react';
+import { Plus, Search, Trash2, Building, Link as LinkIcon, Pencil, AlertTriangle } from 'lucide-react';
 
 const Authorities: React.FC = () => {
   const [acs, setAcs] = useState<CertificateAuthority[]>([]);
@@ -10,6 +10,9 @@ const Authorities: React.FC = () => {
   const [formData, setFormData] = useState<Partial<CertificateAuthority>>({ status: 'ACTIVE' });
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Delete Confirmation State
+  const [acToDelete, setAcToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     setAcs(db.getACs());
@@ -41,12 +44,17 @@ const Authorities: React.FC = () => {
     }
   };
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (window.confirm('Confirma a exclusão desta autoridade certificadora?')) {
-        db.deleteAC(id);
-        setAcs(db.getACs());
-    }
+    setAcToDelete(id);
+  };
+
+  const confirmDelete = () => {
+      if (acToDelete) {
+          db.deleteAC(acToDelete);
+          setAcs(db.getACs());
+          setAcToDelete(null);
+      }
   };
 
   const filteredAcs = acs.filter(a => 
@@ -120,7 +128,7 @@ const Authorities: React.FC = () => {
                         </button>
                         <button 
                         type="button"
-                        onClick={(e) => handleDelete(e, ac.id)}
+                        onClick={(e) => handleDeleteClick(e, ac.id)}
                         className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-colors"
                         >
                         <Trash2 className="w-4 h-4" />
@@ -141,7 +149,7 @@ const Authorities: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Edit/Create Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl">
@@ -200,6 +208,40 @@ const Authorities: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {acToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl p-6 shadow-xl max-w-sm w-full animate-fade-in border border-gray-100">
+            <div className="flex items-center gap-3 mb-4 text-red-600">
+                <div className="bg-red-100 p-2 rounded-full">
+                    <AlertTriangle className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Excluir AC?</h3>
+            </div>
+            
+            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+                Tem certeza que deseja excluir <strong>{acs.find(a => a.id === acToDelete)?.name}</strong>? 
+                <br/>Esta ação é irreversível.
+            </p>
+            
+            <div className="flex justify-end gap-3">
+                <button 
+                    onClick={() => setAcToDelete(null)}
+                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+                >
+                    Cancelar
+                </button>
+                <button 
+                    onClick={confirmDelete}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium shadow-sm transition-colors"
+                >
+                    Confirmar Exclusão
+                </button>
+            </div>
           </div>
         </div>
       )}
