@@ -41,9 +41,8 @@ const Products: React.FC = () => {
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
     e.stopPropagation();
-    if (window.confirm('Tem certeza que deseja excluir este produto?')) {
+    if (window.confirm('Confirma a exclusão deste produto?')) {
         db.deleteProduct(id);
         setProducts(db.getProducts());
     }

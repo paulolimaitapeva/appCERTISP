@@ -42,9 +42,8 @@ const Authorities: React.FC = () => {
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
     e.stopPropagation();
-    if (window.confirm('Tem certeza que deseja excluir esta autoridade certificadora?')) {
+    if (window.confirm('Confirma a exclusão desta autoridade certificadora?')) {
         db.deleteAC(id);
         setAcs(db.getACs());
     }

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { generateDocumentChecklist } from '../services/geminiService';
 import { Client, Product, AppointmentStatus, OrderDisplay, CertificateAuthority } from '../types';
-import { Calendar, Clock, CheckCircle2, XCircle, Sparkles, FileText, Building, Pencil, Search, UserPlus, AlertCircle, Loader2, Globe, CalendarOff, CalendarCheck, Trash2 } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, XCircle, Sparkles, FileText, Building, Pencil, Search, UserPlus, AlertCircle, Loader2, Globe, CalendarOff, CalendarCheck } from 'lucide-react';
 import { fetchCnpjData } from '../services/brasilApi';
 
 const Agenda: React.FC = () => {
@@ -255,15 +255,6 @@ const Agenda: React.FC = () => {
     refreshData();
   };
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (window.confirm('Tem certeza que deseja excluir este agendamento?')) {
-        db.deleteAppointment(id);
-        refreshData();
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -336,15 +327,7 @@ const Agenda: React.FC = () => {
                     >
                         <Pencil className="w-5 h-5" />
                     </button>
-
-                    <button 
-                        type="button"
-                        onClick={(e) => handleDelete(e, order.id)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors tooltip"
-                        title="Excluir"
-                    >
-                        <Trash2 className="w-5 h-5" />
-                    </button>
+                    {/* Botão excluir removido conforme solicitação */}
                 </div>
 
                 {(order.status === AppointmentStatus.SCHEDULED || order.status === AppointmentStatus.PENDING) && (
