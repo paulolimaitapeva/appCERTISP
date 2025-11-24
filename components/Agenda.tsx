@@ -258,9 +258,10 @@ const Agenda: React.FC = () => {
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    // Removed window.confirm to ensure the action works if dialogs are blocked
-    db.deleteAppointment(id);
-    refreshData();
+    if (window.confirm('Tem certeza que deseja excluir este agendamento?')) {
+        db.deleteAppointment(id);
+        refreshData();
+    }
   };
 
   return (

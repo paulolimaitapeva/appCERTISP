@@ -72,9 +72,10 @@ const Clients: React.FC = () => {
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    // Removed window.confirm to ensure the action works if dialogs are blocked
-    db.deleteClient(id);
-    setClients(db.getClients());
+    if (window.confirm('Tem certeza que deseja excluir este cliente?')) {
+        db.deleteClient(id);
+        setClients(db.getClients());
+    }
   };
 
   const filteredClients = clients.filter(c => 
