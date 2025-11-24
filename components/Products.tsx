@@ -41,6 +41,7 @@ const Products: React.FC = () => {
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
     e.stopPropagation();
     if (window.confirm('Remover este produto?')) {
       db.deleteProduct(id);
@@ -114,6 +115,7 @@ const Products: React.FC = () => {
                             <td className="px-6 py-4 text-right">
                                 <div className="flex justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
                                     <button 
+                                        type="button"
                                         onClick={() => handleOpenModal(product)}
                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
                                         title="Editar"
@@ -121,6 +123,7 @@ const Products: React.FC = () => {
                                         <Pencil className="w-4 h-4" />
                                     </button>
                                     <button 
+                                        type="button"
                                         onClick={(e) => handleDelete(e, product.id)}
                                         className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
                                         title="Excluir"

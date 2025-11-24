@@ -42,6 +42,7 @@ const Authorities: React.FC = () => {
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
     e.stopPropagation();
     if (window.confirm('Tem certeza que deseja remover esta Autoridade Certificadora?')) {
       db.deleteAC(id);
@@ -112,12 +113,14 @@ const Authorities: React.FC = () => {
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                         <button 
+                        type="button"
                         onClick={() => handleOpenModal(ac)}
                         className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-full transition-colors"
                         >
                         <Pencil className="w-4 h-4" />
                         </button>
                         <button 
+                        type="button"
                         onClick={(e) => handleDelete(e, ac.id)}
                         className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-colors"
                         >

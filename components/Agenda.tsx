@@ -195,7 +195,7 @@ const Agenda: React.FC = () => {
     }
 
     let dateTime: string | undefined = undefined;
-    let status = AppointmentStatus.PENDING;
+    let newStatus = AppointmentStatus.PENDING;
 
     if (schedulingMode === 'NOW') {
         if (!date || !time) {
@@ -203,14 +203,10 @@ const Agenda: React.FC = () => {
             return;
         }
         dateTime = new Date(`${date}T${time}:00`).toISOString();
-        status = AppointmentStatus.SCHEDULED;
+        newStatus = AppointmentStatus.SCHEDULED;
     } else {
-        // If "Pending" is selected, status is Pending.
-        status = AppointmentStatus.PENDING;
+        newStatus = AppointmentStatus.PENDING;
     }
-
-    // Nota: Removida a trava que impedia a mudança de status de COMPLETED/CANCELLED.
-    // Agora, se o usuário editar, o status será recalculado com base na data (Agendado ou Pendente).
     
     const payload = {
       clientId: selectedClientId,
@@ -218,7 +214,7 @@ const Agenda: React.FC = () => {
       acId: selectedAcId,
       date: dateTime,
       notes: notes,
-      status: status
+      status: newStatus
     };
 
     if (editingId) {
@@ -253,6 +249,7 @@ const Agenda: React.FC = () => {
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
     e.stopPropagation();
     if (window.confirm('Tem certeza que deseja excluir este agendamento/pedido?')) {
         db.deleteAppointment(id);
@@ -325,6 +322,7 @@ const Agenda: React.FC = () => {
 
                 <div className="flex items-center gap-1">
                     <button 
+                        type="button"
                         onClick={() => handleOpenModal(order)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors tooltip"
                         title="Editar Pedido"
@@ -333,6 +331,7 @@ const Agenda: React.FC = () => {
                     </button>
 
                     <button 
+                        type="button"
                         onClick={(e) => handleDelete(e, order.id)}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors tooltip"
                         title="Excluir"
@@ -344,6 +343,7 @@ const Agenda: React.FC = () => {
                 {(order.status === AppointmentStatus.SCHEDULED || order.status === AppointmentStatus.PENDING) && (
                     <div className="flex gap-1 pl-2 border-l border-gray-200">
                     <button 
+                        type="button"
                         onClick={() => handleStatusChange(order.id, AppointmentStatus.COMPLETED)}
                         className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors tooltip"
                         title="Marcar como Concluído"
@@ -351,6 +351,7 @@ const Agenda: React.FC = () => {
                         <CheckCircle2 className="w-5 h-5" />
                     </button>
                     <button 
+                        type="button"
                         onClick={() => handleStatusChange(order.id, AppointmentStatus.CANCELLED)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors tooltip"
                         title="Cancelar"

@@ -70,6 +70,7 @@ const Clients: React.FC = () => {
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
     e.stopPropagation();
     if (window.confirm('Tem certeza que deseja remover este cliente?')) {
       db.deleteClient(id);
@@ -141,6 +142,7 @@ const Clients: React.FC = () => {
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button 
+                        type="button"
                         onClick={() => handleOpenModal(client)}
                         className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-full transition-colors"
                         title="Editar"
@@ -148,6 +150,7 @@ const Clients: React.FC = () => {
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button 
+                        type="button"
                         onClick={(e) => handleDelete(e, client.id)}
                         className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-colors"
                         title="Excluir"
